@@ -1,6 +1,5 @@
 import re
 
-
 findEmail = None
 findCNPJ = None
 findChRapid = None
@@ -19,29 +18,14 @@ def verificarformato(vetData):
 
     if re.match(r"[0-9]{2}/[0-9]{2}/[0-9]{4}", vetData[4]) is None:
         return False
-
     else:
-        dia, mes, ano = vetData[4].split("/")
-        meses31 = ('01', '02', '03', '05', '07', '08', '10', '12')
-        if ano > '0001' and "12" >= mes >= "01" and "31" >= dia >= "01":
-
-            if int(ano) % 4 == 0 and mes == '2':
-                if dia > '29':
-                    return False
-
-            elif mes == '2':
-                if dia > '29':
-                    return False
-
-            if mes != meses31 and dia > '31':
-                return False
-
-            elif dia > '31':
-                return False
-
-        else:
+        dia, me, ano = vetData[4].split("/")
+        if dia > "31":
             return False
-
+        if me > "12":
+            return False
+        if ano < "0001":
+            return False
     if re.match(r"[0-9]{2}:[0-9]{2}", vetData[5]) is None:
         return False
 
@@ -86,7 +70,7 @@ def verificarChaves(vetData, lista_pix):
 
 def validarindetifcadorcpf(ident, data):
     if ident is None:
-        return True
+        return False
     if re.match(r"[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}", ident.string) is None:
         return False
     i1 = 0
@@ -113,7 +97,7 @@ def validarindetifcadorcpf(ident, data):
 
 def validaridentcnpj(ident, data):
     if ident is None:
-        return True
+        return False
     if re.match(r"[0-9]{2}\.[0-9]{3}\.[0-9]{3}/[0-9]{4}-[0-9]{2}", ident.string) is None:
         return False
     numberVerif = []
@@ -177,40 +161,51 @@ def validadarchrapida(lista_ch):
 
 dataA = ""
 lista_chpix = []
-digverf = None
+digverf = True
+
 while dataA != "==========":
-    i = 0
-    j = 0
     dataA = input()
+    if dataA != "==========":
 
-    findCPF = re.search(r"\d{3}\.\d{3}\.\d{3}-\d{2}", dataA)
+        findCPF = re.search(r"\d{3}\.\d{3}\.\d{3}-\d{2}", dataA)
 
-    findCNPJ = re.search(r"[\w.*}{,^?~=+\-_/|]{2}\.[\w.*}{,^?~=+\-_/|]{3}\.[\w.*}{,^?~=+\-_/|]{3}"
-                         r"/[\w.*}{,^?~=+\-_/|]{4}-[\w.*}{,^?~=+\-_/|]{2}", dataA)
-    findEmail = re.findall(r"\S+@[\w.*}{,^?~=+\-_/|]+", dataA)
+        findCNPJ = re.search(r"[\w.*}{,^?~=+\-_/|]{2}\.[\w.*}{,^?~=+\-_/|]{3}\.[\w.*}{,^?~=+\-_/|]{3}"
+                             r"/[\w.*}{,^?~=+\-_/|]{4}-[\w.*}{,^?~=+\-_/|]{2}", dataA)
+        findEmail = re.findall(r"\S+@[\w.*}{,^?~=+\-_/|]+", dataA)
 
-    findTelefone = re.findall(r"\+55\([\w.*}{,^?~=+\-_/|]{2}\)[\w.*}{,^?~=+\-_/|]{4}-[\w.*}{,^?~=+\-_/|]{4}",
-                              dataA)
-    findChRapid = re.findall(r"[\w.*}{,^?~=+\-_/|]{2}\.[\w.*}{,^?~=+\-_/|]{2}\."
-                             r"[\w.*}{,^?~=+\-_/|]{2}\.[\w.*}{,^?~=+\-_/|]{2}", dataA)
+        findTelefone = re.findall(r"\+55\([\w.*}{,^?~=+\-_/|]{2}\)[\w.*}{,^?~=+\-_/|]{4}-[\w.*}{,^?~=+\-_/|]{4}",
+                                  dataA)
+        findChRapid = re.findall(r"[\w.*}{,^?~=+\-_/|]{2}\.[\w.*}{,^?~=+\-_/|]{2}\."
+                                 r"[\w.*}{,^?~=+\-_/|]{2}\.[\w.*}{,^?~=+\-_/|]{2}", dataA)
 
-    if validaremail(findEmail) is False:
-        digverf = False
-    elif validarindetifcadorcpf(findCPF, dataA) is False:
-        digverf = False
-    elif validartelefone(findTelefone) is False:
-        digverf = False
-    elif validaridentcnpj(findCNPJ, dataA) is False:
-        digverf = False
-    elif validadarchrapida(findChRapid) is False:
-        digverf = False
-    else:
-        digverf = True
-    vetDataA = dataA.split(" ")
-    lista_chpix.append(vetDataA)
+        print(validaridentcnpj(findCNPJ, dataA))
+        print(validarindetifcadorcpf(findCPF, dataA))
+        print(validaremail(findEmail))
+        print(validartelefone(findTelefone))
+        print(validadarchrapida(findChRapid))
+
+        if validaridentcnpj(findCNPJ, dataA) is True:
+            if validaremail(findEmail) is False:
+                digverf = False
+            if validartelefone(findTelefone) is False:
+                digverf = False
+            if validadarchrapida(findChRapid) is False:
+                digverf = False
+        elif validarindetifcadorcpf(findCPF, dataA) is True:
+            if validaremail(findEmail) is False:
+                digverf = False
+            if validadarchrapida(findChRapid) is False:
+                digverf = False
+            if validartelefone(findTelefone) is False:
+                digverf = False
+        else:
+            digverf = False
+
+        vetDataA = dataA.split(" ")
+        lista_chpix.append(vetDataA)
+        print("digverf" + str(digverf))
 
 dig_final = True
-
 
 try:
     while True:
@@ -226,4 +221,3 @@ try:
 
 except EOFError:
     print(dig_final)
-    
